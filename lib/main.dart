@@ -74,7 +74,7 @@ class PositionedClipper extends StatelessWidget {
         clipper: MyClipper(left: left, top: top, right: right, bottom: bottom),
         child: AnimatedContainer(
           color: color,
-          duration: Duration(milliseconds: 700),
+          duration: Duration(milliseconds: 500),
           width: 0.7 * width,
           height: 0.7 * height,
         ),
@@ -104,10 +104,10 @@ class ColorChanging extends StatefulWidget {
 }
 
 class _ColorChangingState extends State<ColorChanging> {
-  Color _clipper1Color = Colors.white;
-  Color _clipper2Color = Colors.white;
-  Color _clipper3Color = Colors.white;
-  Color _clipper4Color = Colors.white;
+  Color _clipper1Color = Color(0XFF27aae2);
+  Color _clipper2Color = Color(0XFF27aae2);
+  Color _clipper3Color = Color(0XFF27aae2);
+  Color _clipper4Color = Color(0XFF27aae2);
 
   late Timer _timer;
   late Timer _positionTimer;
@@ -118,21 +118,17 @@ class _ColorChangingState extends State<ColorChanging> {
   double _containerHeight = 220;
   double _maxContainerHeight = 220;
   bool _showClippers = false;
-  int _currentClipper = 1;
+  int _currentClipper = 0;
+  int _cycleCount = 0;
 
   @override
   void initState() {
     super.initState();
+
     _loadImage();
     _startContainerPositionAnimation();
-    _startColorChangingTimer();
 
-    // Delay to show clippers
-    Future.delayed(Duration(seconds: 4), () {
-      setState(() {
-        _showClippers = true;
-      });
-    });
+
   }
 
   @override
@@ -143,24 +139,32 @@ class _ColorChangingState extends State<ColorChanging> {
   }
 
   void _startColorChangingTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+
+    _timer = Timer.periodic(Duration(milliseconds: 150), (timer) {
       setState(() {
+
         switch (_currentClipper) {
+
+          case 0:
+            _clipper1Color =  Colors.white;
+            break;
           case 1:
-            _clipper1Color = _clipper1Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
+            _clipper2Color =  Colors.white;
             break;
           case 2:
-            _clipper2Color = _clipper2Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
+            _clipper3Color =  Colors.white;
             break;
           case 3:
-            _clipper3Color = _clipper3Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
+            _clipper4Color =  Colors.white;
             break;
-          case 4:
-            _clipper4Color = _clipper4Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
-            break;
-            // after case 4 stop the entire everything
         }
         _currentClipper = (_currentClipper % 4) + 1;
+
+
+        if (_currentClipper == 4) {
+          _timer.cancel();
+        }
+
       });
     });
   }
@@ -182,7 +186,7 @@ class _ColorChangingState extends State<ColorChanging> {
 
   // timer for moving the animated container
   void _startContainerPositionAnimation() {
-    _positionTimer = Timer.periodic(Duration(seconds: 3), (timer) {
+    _positionTimer = Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
         _animateToBottom = !_animateToBottom;
         if (_animateToBottom) {
@@ -209,6 +213,7 @@ class _ColorChangingState extends State<ColorChanging> {
           children: [
             Stack(
               children: [
+
                 if (_showClippers && imageWidth != null && imageHeight != null) ...[
                   PositionedClipper(
                     left: true,
@@ -273,8 +278,18 @@ class _ColorChangingState extends State<ColorChanging> {
               ],
             ),
             if (imageWidth != null && imageHeight != null)
-              AnimatedPositioned(
-                duration: Duration(seconds: 3),
+              AnimatedPositioned(onEnd: ()
+                {
+                  //print("show the end method");
+                 ////
+
+                  setState(() {
+                    _showClippers = true;
+                    _startColorChangingTimer();
+                  });
+
+                },
+                duration: Duration(milliseconds: 1500),
                 bottom: _animateToBottom ? 0 : (MediaQuery.sizeOf(context).height / 2) - 110,
                 left: (MediaQuery.sizeOf(context).width / 2) - 100,
                 child: AnimatedContainer(
@@ -282,7 +297,7 @@ class _ColorChangingState extends State<ColorChanging> {
                   width: 200,
                   alignment: _animateToBottom ? Alignment.bottomCenter : Alignment.topCenter,
                   color: Color(0XFF27aae2),
-                  duration: Duration(seconds: 1),
+                  duration: Duration(seconds: 0),
                 ),
               ),
           ],
