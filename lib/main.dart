@@ -104,8 +104,12 @@ class ColorChanging extends StatefulWidget {
 }
 
 class _ColorChangingState extends State<ColorChanging> {
-  Color _clipperColor = Colors.white;
-  late Timer _colorTimer;
+  Color _clipper1Color = Colors.white;
+  Color _clipper2Color = Colors.white;
+  Color _clipper3Color = Colors.white;
+  Color _clipper4Color = Colors.white;
+
+  late Timer _timer;
   late Timer _positionTimer;
   double? imageWidth;
   double? imageHeight;
@@ -114,16 +118,17 @@ class _ColorChangingState extends State<ColorChanging> {
   double _containerHeight = 220;
   double _maxContainerHeight = 220;
   bool _showClippers = false;
+  int _currentClipper = 1;
 
   @override
   void initState() {
     super.initState();
-    _startColorChangingTimer();
     _loadImage();
     _startContainerPositionAnimation();
+    _startColorChangingTimer();
 
     // Delay to show clippers
-    Future.delayed(Duration(seconds: 5), () {
+    Future.delayed(Duration(seconds: 4), () {
       setState(() {
         _showClippers = true;
       });
@@ -132,16 +137,30 @@ class _ColorChangingState extends State<ColorChanging> {
 
   @override
   void dispose() {
-    _colorTimer.cancel();
+    _timer.cancel();
     _positionTimer.cancel();
     super.dispose();
   }
 
-  // timer for changing color
   void _startColorChangingTimer() {
-    _colorTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
-        _clipperColor = _clipperColor == Colors.white ? Color(0XFF27aae2) : Colors.white;
+        switch (_currentClipper) {
+          case 1:
+            _clipper1Color = _clipper1Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
+            break;
+          case 2:
+            _clipper2Color = _clipper2Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
+            break;
+          case 3:
+            _clipper3Color = _clipper3Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
+            break;
+          case 4:
+            _clipper4Color = _clipper4Color == Colors.white ? Color(0XFF27aae2) : Colors.white;
+            break;
+            // after case 4 stop the entire everything
+        }
+        _currentClipper = (_currentClipper % 4) + 1;
       });
     });
   }
@@ -173,6 +192,11 @@ class _ColorChangingState extends State<ColorChanging> {
           timer.cancel();
         }
       });
+
+      // Stop the position animation timer once the container reaches the bottom
+      if (_animateToBottom) {
+        timer.cancel();
+      }
     });
   }
 
@@ -191,7 +215,7 @@ class _ColorChangingState extends State<ColorChanging> {
                     top: true,
                     right: false,
                     bottom: false,
-                    color: _clipperColor,
+                    color: _clipper1Color,
                     width: imageWidth!,
                     height: imageHeight!,
                   ),
@@ -200,7 +224,7 @@ class _ColorChangingState extends State<ColorChanging> {
                     top: true,
                     right: true,
                     bottom: false,
-                    color: _clipperColor,
+                    color: _clipper2Color,
                     width: imageWidth!,
                     height: imageHeight!,
                   ),
@@ -209,7 +233,7 @@ class _ColorChangingState extends State<ColorChanging> {
                     top: false,
                     right: false,
                     bottom: true,
-                    color: _clipperColor,
+                    color: _clipper4Color,
                     width: imageWidth!,
                     height: imageHeight!,
                   ),
@@ -218,7 +242,7 @@ class _ColorChangingState extends State<ColorChanging> {
                     top: false,
                     right: true,
                     bottom: true,
-                    color: _clipperColor,
+                    color: _clipper3Color,
                     width: imageWidth!,
                     height: imageHeight!,
                   ),
